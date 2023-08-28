@@ -72,6 +72,52 @@ apt-get install -y \
 # forbid creation of a main cluster when package is installed
 sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf
 
+if [ $(arch) == s390x ]; then
+apt-get update
+apt-get install -y \
+    build-essential \
+    git \
+    postgresql-server-dev-15
+git clone https://github.com/citusdata/postgresql-hll.git
+pwd
+cd postgresql-hll
+make
+make install
+cd /builddeps
+fi
+
+if [ $(arch) == s390x ]; then
+apt-get update -y
+apt-get upgrade -y
+apt-get install -y \
+    build-essential \
+    libproj-dev \
+    libgeos-dev \
+    libxml2-dev \
+    gettext \
+    libjson-c-dev \
+    libgdal-dev \
+    libsfcgal-dev \
+    libprotobuf-c-dev \
+    protobuf-c-compiler \
+    libgtk2.0-dev \
+    postgresql-server-dev-15 \
+    xsltproc \
+    libtool \
+    m4 \
+    automake \
+    libthreads-shared-perl \
+    git
+git clone https://github.com/postgis/postgis.git
+cd postgis/
+./autogen.sh
+./configure
+make
+make install
+#make test
+cd /builddeps
+fi
+
 for version in $DEB_PG_SUPPORTED_VERSIONS; do
     sed -i "s/ main.*$/ main $version/g" /etc/apt/sources.list.d/pgdg.list
     apt-get update
